@@ -6,20 +6,15 @@
     <title>Database Sertifikasi Rai Fitness 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Menjaga format baris baru dari data JS */
         .ans-text { white-space: pre-line; }
-        /* Sticky search bar agar mudah diakses saat scroll */
         .sticky-search { position: sticky; top: 0; z-index: 50; }
-        /* Efek transisi halus */
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Warna aktif untuk tombol mode */
         .active-mode { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen pb-16">
 
-    <!-- Header -->
     <header class="bg-blue-700 text-white py-12 px-4 text-center shadow-xl">
         <h1 class="text-3xl md:text-4xl font-extrabold italic tracking-tight">LATIHAN INTI SERTIFIKASI RAI FITNESS 2026</h1>
         <p class="mt-3 text-blue-100 font-medium max-w-2xl mx-auto">Optimasi Persiapan Ujian: Navigasi Cerdas & Pemahaman Mendalam</p>
@@ -27,172 +22,159 @@
 
     <main class="max-w-4xl mx-auto px-4 mt-8">
         
-        <!-- Search Bar -->
         <div class="sticky-search bg-gray-50 pb-6 pt-2">
             <input type="text" id="searchInput" onkeyup="searchQuiz()" 
                 placeholder="Cari kata kunci materi (contoh: Hipertrofi, Insulin, Lemak)..." 
                 class="w-full p-5 rounded-2xl border-2 border-blue-400 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all text-lg font-medium">
         </div>
 
-        <!-- Container Pertanyaan -->
-        <div id="quiz-container" class="space-y-6 min-h-[400px]">
-            <!-- Data akan dimuat di sini oleh JavaScript -->
+        <div id="quiz-container" class="min-h-[400px]">
             <div class="flex justify-center items-center h-40">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
                 <span class="ml-3 font-bold text-blue-700">Memuat Data...</span>
             </div>
         </div>
 
-        <!-- Navigasi Halaman -->
         <div id="paginationControls" class="flex justify-between items-center mt-12 bg-white p-4 rounded-2xl shadow-md border border-gray-100">
             <button id="prevBtn" onclick="changePage(-1)" 
-                class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl disabled:bg-gray-200 disabled:text-gray-400 hover:bg-gray-200 transition active:scale-95">
+                class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl disabled:bg-gray-200 disabled:opacity-50 transition active:scale-95">
                 ← Sebelumnya
             </button>
             <span id="pageIndicator" class="font-extrabold text-blue-700 text-lg"></span>
             <button id="nextBtn" onclick="changePage(1)" 
-                class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl disabled:bg-gray-200 disabled:text-gray-400 hover:bg-blue-800 transition shadow-lg active:scale-95">
+                class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl disabled:bg-gray-200 disabled:opacity-50 hover:bg-blue-800 transition shadow-lg active:scale-95">
                 Berikutnya →
             </button>
         </div>
     </main>
 
-    <!-- MEMANGGIL FILE JAVASCRIPT TERPISAH -->
     <script src="soal_rai_2026.js"></script>
 
     <script>
         let currentPage = 1;
         const itemsPerPage = 1;
         let filteredQuestions = [];
-        let currentModes = {}; // Melacak pilihan mode (short/long) per ID soal
+        let currentModes = {}; 
+        let bookmarks = JSON.parse(localStorage.getItem('rai_bookmarks')) || [];
 
-        // Menunggu file JS eksternal termuat sepenuhnya
+        // 1. Inisialisasi awal saat data termuat
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof questions !== 'undefined') {
                 filteredQuestions = [...questions];
                 renderQuiz();
+            } else {
+                console.error("Data 'questions' tidak ditemukan. Pastikan file soal_rai_2026.js sudah benar.");
             }
         });
 
+        // 2. Fungsi Render Utama
         function renderQuiz() {
             const container = document.getElementById('quiz-container');
+            const pageIndicator = document.getElementById('pageIndicator');
             container.innerHTML = '';
             
             if (filteredQuestions.length === 0) {
-                container.innerHTML = `
-                    <div class="p-12 text-center bg-white rounded-3xl shadow-inner border-2 border-dashed border-gray-200">
-                        <p class="text-xl text-gray-400 font-bold">Materi tidak ditemukan.</p>
-                        <p class="text-sm text-gray-400">Coba gunakan kata kunci yang lebih umum.</p>
-                    </div>`;
-                document.getElementById('paginationControls').classList.add('invisible');
+                container.innerHTML = `<div class="p-12 text-center bg-white rounded-3xl shadow-inner border-2 border-dashed border-gray-200">
+                    <p class="text-xl text-gray-400 font-bold">Materi tidak ditemukan.</p>
+                </div>`;
+                document.getElementById('paginationControls').classList.add('hidden');
                 return;
             }
 
-            document.getElementById('paginationControls').classList.remove('invisible');
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const paginatedItems = filteredQuestions.slice(start, end);
+            document.getElementById('paginationControls').classList.remove('hidden');
+            
+            // Hitung item yang aktif
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const item = filteredQuestions[startIndex];
 
-            paginatedItems.forEach(item => {
-                // Default ke mode ringkas jika belum disetel
-                if (!currentModes[item.id]) currentModes[item.id] = 'short';
-                
-                const card = document.createElement('div');
-                card.className = "fade-in bg-white p-6 md:p-8 rounded-3xl shadow-md border-l-[10px] border-blue-600 relative overflow-hidden transition-all hover:shadow-xl";
-                card.innerHTML = `
-                    <div class="pr-20">
-                        <h3 class="text-xl font-bold text-gray-800 leading-snug">${item.id}. ${item.q}</h3>
-                    </div>
-                    
-                    <button id="btn-open-${item.id}" onclick="toggleAnswer(${item.id})" 
-                        class="absolute top-6 right-6 bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg hover:bg-blue-700 active:scale-90 transition-all">
-                        Buka
+            // Set mode default jika belum ada
+            if (!currentModes[item.id]) currentModes[item.id] = 'short';
+            const isBookmarked = bookmarks.includes(item.id);
+
+            // Buat Elemen Kartu
+            const card = document.createElement('div');
+            card.className = "fade-in bg-white p-6 md:p-8 rounded-3xl shadow-md border-l-[10px] border-blue-600 relative transition-all";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-blue-700 font-black text-sm uppercase tracking-widest">Pertanyaan Ke-${startIndex + 1}</span>
+                    <button onclick="toggleBookmark(${item.id})" class="text-2xl transition-transform active:scale-125 focus:outline-none">
+                        ${isBookmarked ? '⭐' : '☆'}
                     </button>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 leading-tight">${item.q}</h3>
+                
+                <button id="btn-open-${item.id}" onclick="toggleAnswer('${item.id}')" 
+                    class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition-all">
+                    LIHAT JAWABAN
+                </button>
 
-                    <div id="ans-${item.id}" class="hidden mt-8 pt-6 border-t border-gray-100">
-                        <!-- Teks Konten Jawaban -->
-                        <div id="text-${item.id}" class="ans-text text-gray-700 leading-relaxed bg-blue-50 p-6 rounded-2xl font-medium text-lg border border-blue-100 mb-6">
-                            ${currentModes[item.id] === 'short' ? item.a_short : item.a_long}
-                        </div>
-
-                        <!-- Panel Kontrol Bawah (Strategis: Dekat dengan Tutup) -->
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-100 p-4 rounded-2xl border border-gray-200">
-                            <div class="flex p-1 bg-white rounded-xl shadow-inner border border-gray-200">
-                                <button class="mode-btn-${item.id} px-4 py-2 text-xs font-bold rounded-lg transition-all ${currentModes[item.id] === 'short' ? 'active-mode' : 'text-gray-400'}" 
-                                    onclick="switchMode(${item.id}, 'short')">Mode Ringkas</button>
-                                <button class="mode-btn-${item.id} px-4 py-2 text-xs font-bold rounded-lg transition-all ${currentModes[item.id] === 'long' ? 'active-mode' : 'text-gray-400'}" 
-                                    onclick="switchMode(${item.id}, 'long')">Mode Lengkap</button>
-                            </div>
-                            
-                            <button onclick="toggleAnswer(${item.id})" 
-                                class="w-full md:w-auto px-10 py-2 bg-red-100 text-red-700 font-extrabold rounded-xl hover:bg-red-700 hover:text-white transition-all shadow-sm">
-                                TUTUP JAWABAN ↑
-                            </button>
-                        </div>
+                <div id="ans-${item.id}" class="hidden mt-6">
+                    <div class="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl">
+                        <button class="flex-1 py-2 text-xs font-bold rounded-lg ${currentModes[item.id] === 'short' ? 'active-mode' : 'text-gray-500'}" 
+                            onclick="switchMode(${item.id}, 'short')">RINGKAS</button>
+                        <button class="flex-1 py-2 text-xs font-bold rounded-lg ${currentModes[item.id] === 'long' ? 'active-mode' : 'text-gray-500'}" 
+                            onclick="switchMode(${item.id}, 'long')">LENGKAP</button>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-
-            updatePagination();
+                    <div id="text-${item.id}" class="ans-text text-gray-700 leading-relaxed bg-blue-50 p-6 rounded-2xl font-medium border border-blue-100 text-lg">
+                        ${currentModes[item.id] === 'short' ? item.a_short : item.a_long}
+                    </div>
+                    <button onclick="toggleAnswer('${item.id}')" class="w-full mt-4 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-all">
+                        TUTUP JAWABAN ↑
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            // Update Navigasi
+            const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
+            pageIndicator.innerText = `${currentPage} / ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
+        // 3. Fungsi Navigasi Halaman
+        function changePage(direction) {
+            currentPage += direction;
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 4. Fungsi Tampil/Sembunyi Jawaban
         function toggleAnswer(id) {
             const ansDiv = document.getElementById(`ans-${id}`);
             const btnOpen = document.getElementById(`btn-open-${id}`);
-            const isHidden = ansDiv.classList.contains('hidden');
-            
-            if (isHidden) {
-                ansDiv.classList.remove('hidden');
-                btnOpen.classList.add('hidden');
-            } else {
-                ansDiv.classList.add('hidden');
-                btnOpen.classList.remove('hidden');
-            }
+            ansDiv.classList.toggle('hidden');
+            btnOpen.classList.toggle('hidden');
         }
 
+        // 5. Fungsi Ganti Mode Jawaban
         function switchMode(id, mode) {
             currentModes[id] = mode;
-            const item = questions.find(q => q.id === id);
-            const textDiv = document.getElementById(`text-${id}`);
-            
-            // Perbarui Teks
-            textDiv.innerText = (mode === 'short') ? item.a_short : item.a_long;
-            
-            // Perbarui Visual Tombol
-            const btns = document.querySelectorAll(`.mode-btn-${id}`);
-            btns.forEach(btn => btn.classList.remove('active-mode', 'text-gray-400'));
-            
-            if (mode === 'short') {
-                btns[0].classList.add('active-mode');
-                btns[1].classList.add('text-gray-400');
-            } else {
-                btns[1].classList.add('active-mode');
-                btns[0].classList.add('text-gray-400');
-            }
+            renderQuiz();
         }
 
+        // 6. Fungsi Pencarian
         function searchQuiz() {
             const term = document.getElementById('searchInput').value.toLowerCase();
             filteredQuestions = questions.filter(item => 
                 item.q.toLowerCase().includes(term) || 
                 item.a_long.toLowerCase().includes(term)
             );
-            currentPage = 1;
+            currentPage = 1; // Reset ke halaman pertama saat mencari
             renderQuiz();
         }
 
-        function changePage(direction) {
-            currentPage += direction;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // 7. Fungsi Bookmark Strategis
+        function toggleBookmark(id) {
+            const index = bookmarks.indexOf(id);
+            if (index > -1) { 
+                bookmarks.splice(index, 1); 
+            } else { 
+                bookmarks.push(id); 
+            }
+            localStorage.setItem('rai_bookmarks', JSON.stringify(bookmarks));
             renderQuiz();
-        }
-
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
-            document.getElementById('pageIndicator').innerText = `Halaman ${currentPage} / ${totalPages || 1}`;
-            document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
         }
     </script>
 </body>
