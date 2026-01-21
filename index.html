@@ -7,49 +7,44 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .ans-text { white-space: pre-line; }
-        .sticky-search { position: sticky; top: 0; z-index: 50; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Warna aktif untuk tombol mode */
         .active-mode { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen pb-16">
 
     <header class="bg-blue-700 text-white py-12 px-4 text-center shadow-xl">
-        <h1 class="text-3xl md:text-4xl font-extrabold italic tracking-tight">LATIHAN INTI SERTIFIKASI RAI FITNESS 2026</h1>
-        <p class="mt-3 text-blue-100 font-medium max-w-2xl mx-auto">Optimasi Persiapan Ujian: Navigasi Cerdas & Pemahaman Mendalam</p>
+        <h1 class="text-3xl md:text-4xl font-extrabold italic tracking-tight uppercase">LATIHAN INTI RAI FITNESS 2026</h1>
+        <p class="mt-3 text-blue-100 font-medium max-w-2xl mx-auto italic">"Otot adalah organ panjang umur. Fokus, pelajari, dan kuasai."</p>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 mt-8">
         
-        <div class="sticky-search bg-gray-50 pb-6 pt-2">
-            <input type="text" id="searchInput" onkeyup="searchQuiz()" 
-                placeholder="Cari kata kunci materi (contoh: Hipertrofi, Insulin, Lemak)..." 
-                class="w-full p-5 rounded-2xl border-2 border-blue-400 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all text-lg font-medium">
-        </div>
-
         <div id="quiz-container" class="min-h-[400px]">
             <div class="flex justify-center items-center h-40">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
-                <span class="ml-3 font-bold text-blue-700">Memuat Data...</span>
+                <span class="ml-3 font-bold text-blue-700">Memuat Materi...</span>
             </div>
         </div>
 
-        <div id="paginationControls" class="flex justify-between items-center mt-12 bg-white p-4 rounded-2xl shadow-md border border-gray-100">
+        <div id="paginationControls" class="flex justify-between items-center mt-8 bg-white p-4 rounded-2xl shadow-md border border-gray-100">
             <button id="prevBtn" onclick="changePage(-1)" 
-                class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl disabled:bg-gray-200 disabled:opacity-50 transition active:scale-95">
-                ← Sebelumnya
+                class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl disabled:opacity-50 transition active:scale-95">
+                ←
             </button>
             <span id="pageIndicator" class="font-extrabold text-blue-700 text-lg"></span>
             <button id="nextBtn" onclick="changePage(1)" 
-                class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl disabled:bg-gray-200 disabled:opacity-50 hover:bg-blue-800 transition shadow-lg active:scale-95">
-                Berikutnya →
+                class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl disabled:opacity-50 hover:bg-blue-800 transition shadow-lg active:scale-95">
+                →
             </button>
         </div>
     </main>
 
     <script src="soal_rai_2026.js"></script>
-<script>
+
+    <script>
         let currentPage = 1;
         const itemsPerPage = 1;
         let filteredQuestions = [];
@@ -68,28 +63,19 @@
             const pageIndicator = document.getElementById('pageIndicator');
             container.innerHTML = '';
             
-            if (filteredQuestions.length === 0) {
-                container.innerHTML = `<div class="p-12 text-center bg-white rounded-3xl shadow-inner border-2 border-dashed border-gray-200"><p class="text-xl text-gray-400 font-bold">Materi tidak ditemukan.</p></div>`;
-                document.getElementById('paginationControls').classList.add('hidden');
-                return;
-            }
-
-            document.getElementById('paginationControls').classList.remove('hidden');
             const startIndex = (currentPage - 1) * itemsPerPage;
             const item = filteredQuestions[startIndex];
 
-            // Pastikan mode terinisialisasi
             if (!currentModes[item.id]) currentModes[item.id] = 'short';
             const isBookmarked = bookmarks.includes(item.id);
 
             const card = document.createElement('div');
-            // Menambah padding-top ekstra agar bintang tidak tertutup di layar lebar
             card.className = "fade-in bg-white p-6 md:p-10 rounded-3xl shadow-md border-l-[10px] border-blue-600 relative transition-all";
             
             card.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
-                    <span class="text-blue-700 font-black text-sm uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">Soal Ke-${startIndex + 1}</span>
-                    <button onclick="toggleBookmark(${item.id})" class="text-3xl focus:outline-none hover:scale-110 transition-transform" title="Simpan Soal">
+                    <span class="text-blue-700 font-black text-sm uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">Materi ${startIndex + 1}</span>
+                    <button onclick="toggleBookmark(${item.id})" class="text-3xl focus:outline-none hover:scale-110 transition-transform">
                         ${isBookmarked ? '<span class="text-yellow-500">⭐</span>' : '<span class="text-gray-300">☆</span>'}
                     </button>
                 </div>
@@ -98,24 +84,26 @@
                 
                 <button id="btn-open-${item.id}" onclick="toggleAnswer('${item.id}')" 
                     class="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all">
-                    LIHAT JAWABAN
+                    BUKA JAWABAN
                 </button>
 
-                <div id="ans-${item.id}" class="hidden mt-6 space-y-4">
-                    <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl border border-gray-200">
-                        <button class="flex-1 py-3 text-sm font-black rounded-xl transition-all ${currentModes[item.id] === 'short' ? 'active-mode shadow-md' : 'text-gray-500'}" 
-                            onclick="switchMode(${item.id}, 'short')">MODE RINGKAS</button>
-                        <button class="flex-1 py-3 text-sm font-black rounded-xl transition-all ${currentModes[item.id] === 'long' ? 'active-mode shadow-md' : 'text-gray-500'}" 
-                            onclick="switchMode(${item.id}, 'long')">MODE LENGKAP</button>
-                    </div>
-
+                <div id="ans-${item.id}" class="hidden mt-6 space-y-6">
                     <div id="text-${item.id}" class="ans-text text-gray-800 leading-relaxed bg-blue-50 p-6 md:p-8 rounded-2xl font-medium border border-blue-100 text-lg md:text-xl shadow-inner">
                         ${currentModes[item.id] === 'short' ? item.a_short : item.a_long}
                     </div>
 
-                    <button onclick="toggleAnswer('${item.id}')" class="w-full mt-4 py-4 text-red-600 font-extrabold hover:bg-red-50 rounded-2xl transition-all border-2 border-transparent hover:border-red-100 uppercase tracking-tighter">
-                        Tutup Jawaban ↑
-                    </button>
+                    <div class="space-y-3">
+                        <div class="flex gap-2 p-1 bg-gray-200 rounded-2xl">
+                            <button class="flex-1 py-3 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'short' ? 'active-mode shadow-md' : 'text-gray-500'}" 
+                                onclick="switchMode(${item.id}, 'short')">MODE RINGKAS</button>
+                            <button class="flex-1 py-3 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'long' ? 'active-mode shadow-md' : 'text-gray-500'}" 
+                                onclick="switchMode(${item.id}, 'long')">MODE LENGKAP</button>
+                        </div>
+
+                        <button onclick="toggleAnswer('${item.id}')" class="w-full py-4 bg-red-50 text-red-600 font-extrabold rounded-2xl hover:bg-red-600 hover:text-white transition-all border-2 border-red-100 uppercase tracking-tighter">
+                            Tutup Jawaban ↑
+                        </button>
+                    </div>
                 </div>
             `;
             container.appendChild(card);
@@ -135,44 +123,28 @@
         function toggleAnswer(id) {
             const ansDiv = document.getElementById(`ans-${id}`);
             const btnOpen = document.getElementById(`btn-open-${id}`);
-            if (ansDiv.classList.contains('hidden')) {
-                ansDiv.classList.remove('hidden');
-                btnOpen.classList.add('hidden');
-            } else {
-                ansDiv.classList.add('hidden');
-                btnOpen.classList.remove('hidden');
-            }
+            ansDiv.classList.toggle('hidden');
+            btnOpen.classList.toggle('hidden');
         }
 
         function switchMode(id, mode) {
             currentModes[id] = mode;
-            // Gunakan update teks langsung agar tidak merusak scroll position
+            // Langsung update teks tanpa re-render seluruh kartu agar posisi scroll stabil
             const item = filteredQuestions.find(q => q.id === id);
             const textDiv = document.getElementById(`text-${id}`);
-            if (textDiv && item) {
+            if (textDiv) {
                 textDiv.innerText = (mode === 'short') ? item.a_short : item.a_long;
-                renderQuiz(); // Re-render untuk update status tombol aktif
+                // Tetap panggil renderQuiz hanya untuk update status tombol active
+                renderQuiz(); 
+                // Karena renderQuiz mengembalikan tampilan ke awal, kita buka kembali jawabannya
+                toggleAnswer(id);
             }
-        }
-
-        function searchQuiz() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            filteredQuestions = questions.filter(item => 
-                item.q.toLowerCase().includes(term) || 
-                item.a_long.toLowerCase().includes(term) ||
-                item.a_short.toLowerCase().includes(term)
-            );
-            currentPage = 1;
-            renderQuiz();
         }
 
         function toggleBookmark(id) {
             const index = bookmarks.indexOf(id);
-            if (index > -1) { 
-                bookmarks.splice(index, 1); 
-            } else { 
-                bookmarks.push(id); 
-            }
+            if (index > -1) { bookmarks.splice(index, 1); } 
+            else { bookmarks.push(id); }
             localStorage.setItem('rai_bookmarks', JSON.stringify(bookmarks));
             renderQuiz();
         }
