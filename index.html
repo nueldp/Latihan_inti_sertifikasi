@@ -6,11 +6,13 @@
     <title>Database Sertifikasi Rai Fitness 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .ans-text { white-space: pre-line; }
+        .ans-text { white-space: pre-line; scroll-margin-top: 120px; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Warna aktif untuk tombol mode */
         .active-mode { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+        
+        /* Langkah Strategis: Penanda area aktif */
+        .focus-ring { border-top: 4px solid #2563eb; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen pb-16">
@@ -23,20 +25,19 @@
     <main class="max-w-4xl mx-auto px-4 mt-8">
         
         <div id="quiz-container" class="min-h-[400px]">
-            <div class="flex justify-center items-center h-40">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
-                <span class="ml-3 font-bold text-blue-700">Memuat Materi...</span>
+            <div class="flex justify-center items-center h-40 text-blue-700 font-bold">
+                Memuat Instrumen Pembelajaran...
             </div>
         </div>
 
         <div id="paginationControls" class="flex justify-between items-center mt-8 bg-white p-4 rounded-2xl shadow-md border border-gray-100">
             <button id="prevBtn" onclick="changePage(-1)" 
-                class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl disabled:opacity-50 transition active:scale-95">
+                class="px-8 py-4 bg-gray-100 text-gray-700 font-black rounded-xl disabled:opacity-30 transition active:scale-90">
                 ←
             </button>
-            <span id="pageIndicator" class="font-extrabold text-blue-700 text-lg"></span>
+            <span id="pageIndicator" class="font-black text-blue-700 text-xl tracking-tighter"></span>
             <button id="nextBtn" onclick="changePage(1)" 
-                class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl disabled:opacity-50 hover:bg-blue-800 transition shadow-lg active:scale-95">
+                class="px-8 py-4 bg-blue-700 text-white font-black rounded-xl disabled:opacity-30 hover:bg-blue-800 transition shadow-lg active:scale-90">
                 →
             </button>
         </div>
@@ -73,34 +74,34 @@
             card.className = "fade-in bg-white p-6 md:p-10 rounded-3xl shadow-md border-l-[10px] border-blue-600 relative transition-all";
             
             card.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-blue-700 font-black text-sm uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">Materi ${startIndex + 1}</span>
-                    <button onclick="toggleBookmark(${item.id})" class="text-3xl focus:outline-none hover:scale-110 transition-transform">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-blue-700 font-black text-xs uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-full">MATERI ${startIndex + 1}</span>
+                    <button onclick="toggleBookmark(${item.id})" class="text-3xl focus:outline-none transition-transform hover:scale-125">
                         ${isBookmarked ? '<span class="text-yellow-500">⭐</span>' : '<span class="text-gray-300">☆</span>'}
                     </button>
                 </div>
                 
-                <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 leading-tight">${item.q}</h3>
+                <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-10 leading-snug">${item.q}</h3>
                 
                 <button id="btn-open-${item.id}" onclick="toggleAnswer('${item.id}')" 
-                    class="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all">
+                    class="w-full bg-blue-600 text-white py-6 rounded-2xl font-black text-xl shadow-xl hover:bg-blue-700 active:scale-95 transition-all tracking-wide">
                     BUKA JAWABAN
                 </button>
 
-                <div id="ans-${item.id}" class="hidden mt-6 space-y-6">
-                    <div id="text-${item.id}" class="ans-text text-gray-800 leading-relaxed bg-blue-50 p-6 md:p-8 rounded-2xl font-medium border border-blue-100 text-lg md:text-xl shadow-inner">
+                <div id="ans-${item.id}" class="hidden mt-8 space-y-8">
+                    <div id="text-${item.id}" class="ans-text focus-ring text-gray-800 leading-relaxed bg-blue-50 p-6 md:p-10 rounded-2xl font-medium border border-blue-100 text-lg md:text-xl shadow-inner transition-all">
                         ${currentModes[item.id] === 'short' ? item.a_short : item.a_long}
                     </div>
 
-                    <div class="space-y-3">
-                        <div class="flex gap-2 p-1 bg-gray-200 rounded-2xl">
-                            <button class="flex-1 py-3 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'short' ? 'active-mode shadow-md' : 'text-gray-500'}" 
-                                onclick="switchMode(${item.id}, 'short')">MODE RINGKAS</button>
-                            <button class="flex-1 py-3 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'long' ? 'active-mode shadow-md' : 'text-gray-500'}" 
-                                onclick="switchMode(${item.id}, 'long')">MODE LENGKAP</button>
+                    <div class="bg-gray-100 p-4 rounded-3xl space-y-4">
+                        <div class="flex gap-3 p-1">
+                            <button id="btn-mode-short-${item.id}" class="flex-1 py-4 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'short' ? 'active-mode shadow-lg' : 'bg-white text-gray-400 border border-gray-200'}" 
+                                onclick="switchMode(${item.id}, 'short')">RINGKAS</button>
+                            <button id="btn-mode-long-${item.id}" class="flex-1 py-4 text-xs font-black rounded-xl transition-all ${currentModes[item.id] === 'long' ? 'active-mode shadow-lg' : 'bg-white text-gray-400 border border-gray-200'}" 
+                                onclick="switchMode(${item.id}, 'long')">LENGKAP</button>
                         </div>
 
-                        <button onclick="toggleAnswer('${item.id}')" class="w-full py-4 bg-red-50 text-red-600 font-extrabold rounded-2xl hover:bg-red-600 hover:text-white transition-all border-2 border-red-100 uppercase tracking-tighter">
+                        <button onclick="toggleAnswer('${item.id}')" class="w-full py-5 bg-white text-red-600 font-black rounded-2xl border-2 border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm uppercase">
                             Tutup Jawaban ↑
                         </button>
                     </div>
@@ -109,7 +110,7 @@
             container.appendChild(card);
             
             const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
-            pageIndicator.innerText = `${currentPage} / ${totalPages}`;
+            pageIndicator.innerText = `${currentPage}/${totalPages}`;
             document.getElementById('prevBtn').disabled = currentPage === 1;
             document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
@@ -125,19 +126,39 @@
             const btnOpen = document.getElementById(`btn-open-${id}`);
             ansDiv.classList.toggle('hidden');
             btnOpen.classList.toggle('hidden');
+            
+            // Auto-focus saat pertama kali buka
+            if(!ansDiv.classList.contains('hidden')) {
+                const textDiv = document.getElementById(`text-${id}`);
+                textDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function switchMode(id, mode) {
             currentModes[id] = mode;
-            // Langsung update teks tanpa re-render seluruh kartu agar posisi scroll stabil
             const item = filteredQuestions.find(q => q.id === id);
             const textDiv = document.getElementById(`text-${id}`);
-            if (textDiv) {
+            
+            if (textDiv && item) {
+                // Update Konten
                 textDiv.innerText = (mode === 'short') ? item.a_short : item.a_long;
-                // Tetap panggil renderQuiz hanya untuk update status tombol active
-                renderQuiz(); 
-                // Karena renderQuiz mengembalikan tampilan ke awal, kita buka kembali jawabannya
-                toggleAnswer(id);
+                
+                // Update Visual Tombol secara manual agar tidak perlu re-render total
+                const btnShort = document.getElementById(`btn-mode-short-${id}`);
+                const btnLong = document.getElementById(`btn-mode-long-${id}`);
+                
+                if (mode === 'short') {
+                    btnShort.className = "flex-1 py-4 text-xs font-black rounded-xl transition-all active-mode shadow-lg";
+                    btnLong.className = "flex-1 py-4 text-xs font-black rounded-xl transition-all bg-white text-gray-400 border border-gray-200";
+                } else {
+                    btnLong.className = "flex-1 py-4 text-xs font-black rounded-xl transition-all active-mode shadow-lg";
+                    btnShort.className = "flex-1 py-4 text-xs font-black rounded-xl transition-all bg-white text-gray-400 border border-gray-200";
+                }
+
+                // Langkah Strategis 1 & 2: Auto-focus kursor ke teks pertama
+                setTimeout(() => {
+                    textDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
             }
         }
 
@@ -147,6 +168,13 @@
             else { bookmarks.push(id); }
             localStorage.setItem('rai_bookmarks', JSON.stringify(bookmarks));
             renderQuiz();
+            // Jaga agar jawaban tetap terbuka jika sedang membaca saat bookmark diklik
+            const ansDiv = document.getElementById(`ans-${id}`);
+            const btnOpen = document.getElementById(`btn-open-${id}`);
+            if (ansDiv) {
+                ansDiv.classList.remove('hidden');
+                btnOpen.classList.add('hidden');
+            }
         }
     </script>
 </body>
